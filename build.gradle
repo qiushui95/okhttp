@@ -291,8 +291,8 @@ subprojects { project ->
         name = "hero"
         url = System.getenv('HERO_NEXUS_URL')
         credentials {
-          username System.getenv('SONATYPE_NEXUS_USERNAME')
-          password System.getenv('SONATYPE_NEXUS_PASSWORD')
+          username System.getenv('HERO_NEXUS_USERNAME')
+          password System.getenv('HERO_NEXUS_PASSWORD')
         }
       }
     }
