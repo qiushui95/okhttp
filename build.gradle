@@ -90,7 +90,7 @@ ext.publishedArtifactId = { project ->
 allprojects {
   group = 'com.squareup.okhttp3'
   project.ext.artifactId = rootProject.ext.publishedArtifactId(project)
-  version = '4.11.0-SNAPSHOT'
+  version = '4.10.0.1'
 
   repositories {
     mavenCentral()
@@ -234,7 +234,6 @@ subprojects { project ->
   }
 
   apply plugin: 'maven-publish'
-  apply plugin: 'signing'
 
   publishing {
     if (!bom) {
@@ -289,18 +288,14 @@ subprojects { project ->
 
     repositories {
       maven {
-        name = "mavencentral"
-        url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        name = "hero"
+        url = System.getenv('HERO_NEXUS_URL')
         credentials {
           username System.getenv('SONATYPE_NEXUS_USERNAME')
           password System.getenv('SONATYPE_NEXUS_PASSWORD')
         }
       }
     }
-  }
-
-  signing {
-    sign publishing.publications.maven
   }
 }
 
