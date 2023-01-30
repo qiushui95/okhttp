@@ -9,5 +9,5 @@ interface DynamicDns : Dns {
   }
 
   @Throws(UnknownHostException::class)
-  fun lookup(hostname: String, url: HttpUrl): List<InetAddress>
+  fun lookup(hostname: String, request: Request): List<InetAddress>
 }

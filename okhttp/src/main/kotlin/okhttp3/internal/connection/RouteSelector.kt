@@ -35,7 +35,7 @@ class RouteSelector(
   private val address: Address,
   private val routeDatabase: RouteDatabase,
   private val call: Call,
-  private val eventListener: EventListener
+  private val eventListener: EventListener,
 ) {
   /* State for negotiating the next proxy to use. */
   private var proxies = emptyList<Proxy>()
@@ -121,7 +121,7 @@ class RouteSelector(
   private fun nextProxy(): Proxy {
     if (!hasNextProxy()) {
       throw SocketException(
-          "No route to ${address.url.host}; exhausted proxy configurations: $proxies")
+        "No route to ${address.url.host}; exhausted proxy configurations: $proxies")
     }
     val result = proxies[nextProxyIndex++]
     resetNextInetSocketAddress(result)
@@ -163,7 +163,7 @@ class RouteSelector(
 
         // Try each address for best behavior in mixed IPv4/IPv6 environments.
         val result = if (address.dns is DynamicDns) {
-          address.dns.lookup(socketHost, address.url)
+          address.dns.lookup(socketHost, call.request())
         } else {
           address.dns.lookup(socketHost)
         }
@@ -195,15 +195,16 @@ class RouteSelector(
 
   companion object {
     /** Obtain a host string containing either an actual host name or a numeric IP address. */
-    val InetSocketAddress.socketHost: String get() {
-      // The InetSocketAddress was specified with a string (either a numeric IP or a host name). If
-      // it is a name, all IPs for that name should be tried. If it is an IP address, only that IP
-      // address should be tried.
-      val address = address ?: return hostName
+    val InetSocketAddress.socketHost: String
+      get() {
+        // The InetSocketAddress was specified with a string (either a numeric IP or a host name). If
+        // it is a name, all IPs for that name should be tried. If it is an IP address, only that IP
+        // address should be tried.
+        val address = address ?: return hostName
 
-      // The InetSocketAddress has a specific address: we should only try that address. Therefore we
-      // return the address and ignore any host name that may be available.
-      return address.hostAddress
-    }
+        // The InetSocketAddress has a specific address: we should only try that address. Therefore we
+        // return the address and ignore any host name that may be available.
+        return address.hostAddress
+      }
   }
 }
