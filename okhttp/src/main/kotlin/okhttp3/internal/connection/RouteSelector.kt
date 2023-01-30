@@ -15,6 +15,7 @@
  */
 package okhttp3.internal.connection
 
+import okhttp3.*
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -22,11 +23,6 @@ import java.net.Proxy
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.NoSuchElementException
-import okhttp3.Address
-import okhttp3.Call
-import okhttp3.EventListener
-import okhttp3.HttpUrl
-import okhttp3.Route
 import okhttp3.internal.canParseAsIpAddress
 import okhttp3.internal.immutableListOf
 import okhttp3.internal.toImmutableList
@@ -166,7 +162,11 @@ class RouteSelector(
         eventListener.dnsStart(call, socketHost)
 
         // Try each address for best behavior in mixed IPv4/IPv6 environments.
-        val result = address.dns.lookup(socketHost)
+        val result = if (address.dns is DynamicDns) {
+          address.dns.lookup(socketHost, address.url)
+        } else {
+          address.dns.lookup(socketHost)
+        }
         if (result.isEmpty()) {
           throw UnknownHostException("${address.dns} returned no addresses for $socketHost")
         }
