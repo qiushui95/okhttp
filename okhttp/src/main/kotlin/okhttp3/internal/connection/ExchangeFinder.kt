@@ -73,7 +73,8 @@ class ExchangeFinder(
           writeTimeout = chain.writeTimeoutMillis,
           pingIntervalMillis = client.pingIntervalMillis,
           connectionRetryEnabled = client.retryOnConnectionFailure,
-          doExtensiveHealthChecks = chain.request.method != "GET"
+          doExtensiveHealthChecks = chain.request.method != "GET",
+          request= chain.request,
       )
       return resultConnection.newCodec(client, chain)
     } catch (e: RouteException) {
@@ -96,7 +97,8 @@ class ExchangeFinder(
     writeTimeout: Int,
     pingIntervalMillis: Int,
     connectionRetryEnabled: Boolean,
-    doExtensiveHealthChecks: Boolean
+    doExtensiveHealthChecks: Boolean,
+    request: Request
   ): RealConnection {
     while (true) {
       val candidate = findConnection(
@@ -104,7 +106,8 @@ class ExchangeFinder(
           readTimeout = readTimeout,
           writeTimeout = writeTimeout,
           pingIntervalMillis = pingIntervalMillis,
-          connectionRetryEnabled = connectionRetryEnabled
+          connectionRetryEnabled = connectionRetryEnabled,
+          request=request,
       )
 
       // Confirm that the connection is good.
@@ -141,7 +144,8 @@ class ExchangeFinder(
     readTimeout: Int,
     writeTimeout: Int,
     pingIntervalMillis: Int,
-    connectionRetryEnabled: Boolean
+    connectionRetryEnabled: Boolean,
+    request: Request
   ): RealConnection {
     if (call.isCanceled()) throw IOException("Canceled")
 
@@ -195,7 +199,7 @@ class ExchangeFinder(
       // Compute a new route selection. This is a blocking operation!
       var localRouteSelector = routeSelector
       if (localRouteSelector == null) {
-        localRouteSelector = RouteSelector(address, call.client.routeDatabase, call, eventListener)
+        localRouteSelector = RouteSelector(address, call.client.routeDatabase, call, eventListener,request)
         this.routeSelector = localRouteSelector
       }
       val localRouteSelection = localRouteSelector.next()

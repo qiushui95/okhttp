@@ -36,6 +36,7 @@ class RouteSelector(
   private val routeDatabase: RouteDatabase,
   private val call: Call,
   private val eventListener: EventListener,
+  private val request: Request,
 ) {
   /* State for negotiating the next proxy to use. */
   private var proxies = emptyList<Proxy>()
@@ -163,7 +164,7 @@ class RouteSelector(
 
         // Try each address for best behavior in mixed IPv4/IPv6 environments.
         val result = if (address.dns is DynamicDns) {
-          address.dns.lookup(socketHost, call.request())
+          address.dns.lookup(socketHost, request)
         } else {
           address.dns.lookup(socketHost)
         }
